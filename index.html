@@ -2,12 +2,353 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Hello</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coming Soon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --accent: #c8f53a;
+      --accent2: #7b5ea7;
+      --text: #f0ede8;
+      --muted: #5a5a6e;
+      --border: #1e1e2e;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0.4;
+    }
+
+    /* Glow blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      pointer-events: none;
+    }
+    .blob-1 {
+      width: 600px; height: 600px;
+      background: var(--accent2);
+      top: -200px; left: -200px;
+      animation: drift1 12s ease-in-out infinite alternate;
+    }
+    .blob-2 {
+      width: 400px; height: 400px;
+      background: var(--accent);
+      bottom: -100px; right: -100px;
+      animation: drift2 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift1 { to { transform: translate(80px, 60px); } }
+    @keyframes drift2 { to { transform: translate(-60px, -40px); } }
+
+    /* Layout */
+    .wrapper {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+    .logo span { color: var(--accent); }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+    }
+
+    /* Main */
+    main {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4rem 0;
+      gap: 2.5rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 400;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+    .tag::before {
+      content: '';
+      width: 24px; height: 1px;
+      background: var(--accent);
+      display: block;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3rem, 8vw, 7rem);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.55s;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--text);
+      opacity: 0.4;
+    }
+
+    .desc {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--muted);
+      max-width: 420px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.7s;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.85s;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      max-width: 400px;
+      height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      border-radius: 2px;
+      animation: fillBar 2s cubic-bezier(0.4,0,0.2,1) forwards 1.5s;
+    }
+
+    @keyframes fillBar { to { width: 68%; } }
+
+    /* Bottom row */
+    .bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 1s;
+    }
+
+    .notify-form {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .notify-form input {
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      width: 220px;
+    }
+
+    .notify-form input::placeholder { color: var(--muted); }
+
+    .notify-form button {
+      background: var(--accent);
+      border: none;
+      padding: 0.75rem 1.2rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #0a0a0f;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .notify-form button:hover { opacity: 0.85; }
+
+    .social-links {
+      display: flex;
+      gap: 1.2rem;
+    }
+
+    .social-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .social-links a:hover { color: var(--text); }
+
+    /* Floating number decoration */
+    .deco-num {
+      position: fixed;
+      right: 2.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      writing-mode: vertical-rl;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--border);
+      user-select: none;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .wrapper { padding: 1.5rem; }
+      .notify-form input { width: 150px; }
+      .bottom { flex-direction: column; align-items: flex-start; }
+      .deco-num { display: none; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Isi konten kamu di sini -->
-  <h1>Halo Dunia!</h1>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="deco-num">©&nbsp;2025&nbsp;—&nbsp;COMING SOON</div>
+
+  <div class="wrapper">
+    <header>
+      <div class="logo">proj<span>.</span>ek</div>
+      <div class="badge">Under Construction</div>
+    </header>
+
+    <main>
+      <div class="tag">Segera Hadir</div>
+
+      <h1>
+        Sesuatu yang<br>
+        <em>Luar</em> Biasa<br>
+        sedang dibuat.
+      </h1>
+
+      <p class="desc">
+        Kami sedang membangun sesuatu yang keren untuk kamu.
+        Pantau terus, website ini akan segera hadir!
+      </p>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Progress pembangunan</span>
+          <span id="pct">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+    </main>
+
+    <div class="bottom">
+      <div class="notify-form">
+        <input type="email" placeholder="email kamu...">
+        <button>Beritahu Saya</button>
+      </div>
+      <div class="social-links">
+        <a href="#">GitHub</a>
+        <a href="#">Instagram</a>
+        <a href="#">Kontak</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Animate progress number
+    const pct = document.getElementById('pct');
+    let count = 0;
+    setTimeout(() => {
+      const interval = setInterval(() => {
+        count++;
+        pct.textContent = count + '%';
+        if (count >= 68) clearInterval(interval);
+      }, 28);
+    }, 1500);
+  </script>
 
 </body>
 </html>
